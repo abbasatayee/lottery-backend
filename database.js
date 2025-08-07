@@ -233,10 +233,38 @@ function searchLocations(filters) {
   });
 }
 
+// Function to reset/clear all locations
+function resetLocations() {
+  return new Promise((resolve, reject) => {
+    try {
+      // Get count before deletion for response
+      const countStmt = db.prepare("SELECT COUNT(*) as count FROM locations");
+      const countResult = countStmt.get();
+      const deletedCount = countResult.count;
+
+      // Delete all locations
+      const deleteStmt = db.prepare("DELETE FROM locations");
+      deleteStmt.run();
+
+      // Reset the auto-increment counter
+      const resetStmt = db.prepare("DELETE FROM sqlite_sequence WHERE name='locations'");
+      resetStmt.run();
+
+      resolve({ 
+        message: "All locations have been reset",
+        deletedCount: deletedCount
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   db,
   insertLocation,
   getAllLocations,
   getLocationStats,
-  searchLocations
+  searchLocations,
+  resetLocations
 };

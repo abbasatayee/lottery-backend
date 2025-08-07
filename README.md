@@ -122,7 +122,8 @@ Returns API information and available endpoints.
     "GET /api/locations": "Get all stored locations",
     "GET /admin/send-location": "Admin endpoint to send location data via query parameters",
     "GET /api/stats": "Get location statistics",
-    "GET /api/search": "Search locations with filters"
+    "GET /api/search": "Search locations with filters",
+    "DELETE /api/reset": "Reset/clear all location data"
   }
 }
 ```
@@ -267,6 +268,28 @@ Search locations with various filters.
 curl "http://localhost:3000/api/search?ipAddress=192.168.1.1&dateFrom=2024-01-01"
 ```
 
+### DELETE /api/reset
+
+Reset/clear all location data from the database. This will delete all stored locations and reset the auto-increment counter.
+
+**⚠️ Warning:** This operation is irreversible and will permanently delete all location data.
+
+**Response:**
+
+```json
+{
+  "message": "Reset operation completed successfully",
+  "message": "All locations have been reset",
+  "deletedCount": 25
+}
+```
+
+**Example:**
+
+```bash
+curl -X DELETE http://localhost:3000/api/reset
+```
+
 ## Database Schema
 
 The server uses SQLite with a comprehensive `locations.db` file. The database contains a single table with 36 columns:
@@ -354,6 +377,9 @@ curl http://localhost:3000/api/stats
 
 # Search locations
 curl "http://localhost:3000/api/search?ipAddress=::1"
+
+# Reset all locations (⚠️ irreversible)
+curl -X DELETE http://localhost:3000/api/reset
 ```
 
 ### Using JavaScript (fetch):
@@ -415,6 +441,13 @@ const searchResponse = await fetch(
 );
 const searchResults = await searchResponse.json();
 console.log(searchResults);
+
+// Reset all locations (⚠️ irreversible)
+const resetResponse = await fetch("http://localhost:3000/api/reset", {
+  method: "DELETE",
+});
+const resetResult = await resetResponse.json();
+console.log(resetResult);
 ```
 
 ### Browser Testing:

@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { insertLocation, getAllLocations, getLocationStats, searchLocations } = require("./database");
+const { insertLocation, getAllLocations, getLocationStats, searchLocations, resetLocations } = require("./database");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -87,9 +87,27 @@ app.get("/", (req, res) => {
       "GET /api/locations": "Get all stored locations",
       "GET /admin/send-location": "Admin endpoint to send location data via query parameters",
       "GET /api/stats": "Get location statistics",
-      "GET /api/search": "Search locations with filters"
+      "GET /api/search": "Search locations with filters",
+      "DELETE /api/reset": "Reset/clear all location data"
     },
   });
+});
+
+// DELETE endpoint to reset all locations
+app.delete("/api/reset", async (req, res) => {
+  try {
+    const result = await resetLocations();
+    res.json({
+      message: "Reset operation completed successfully",
+      ...result
+    });
+  } catch (error) {
+    console.error("Error resetting locations:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: error.message,
+    });
+  }
 });
 
 // Admin endpoint to send location data via GET request
@@ -342,6 +360,7 @@ app.use("*", (req, res) => {
       "GET /api/locations": "Get all locations",
       "GET /api/stats": "Get location statistics",
       "GET /api/search": "Search locations",
+      "DELETE /api/reset": "Reset/clear all location data",
       "GET /admin/send-location": "Admin endpoint to send location data",
     },
   });
@@ -355,6 +374,7 @@ app.listen(PORT, () => {
   console.log(`   GET  http://localhost:${PORT}/api/locations`);
   console.log(`   GET  http://localhost:${PORT}/api/stats`);
   console.log(`   GET  http://localhost:${PORT}/api/search`);
+  console.log(`   DELETE http://localhost:${PORT}/api/reset`);
   console.log(
     `   GET  http://localhost:${PORT}/admin/send-location?latitude=37.7749&longitude=-122.4194`
   );
